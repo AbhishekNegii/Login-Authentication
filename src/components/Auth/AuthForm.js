@@ -19,49 +19,42 @@ const AuthForm = () => {
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
     setIsLoading(true);
-
+    let url;
     if (isLogin) {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCCXzhbX-HRm-ujGbrRU7-ynAlPT4t8HTY";
     } else {
-      try {
-        const response = await fetch(
-          "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCCXzhbX-HRm-ujGbrRU7-ynAlPT4t8HTY",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              email: enteredEmail,
-              password: enteredPassword,
-              returnSecureToken: true,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        // if(!response.ok){
-        //   throw new Error("Entered wrong details")
-        // }
-        setIsLoading(false);
-        console.log(response);
-        const data = await response.json();
-        {
-          let errorMessage = "Authentication Failed....";
-          if (data && data.error && data.error.message) {
-            errorMessage = data.error.message;
-          }
-          alert(errorMessage);
-        }
-        // console.log(data)
-      } catch (error) {
-        console.log(error);
-      }
-      //  let errorMessage= "Authentication Failed...."
-      //  if(data && data.error && data.error.message){
-      //   errorMessage= data.error.message;
-      //   alert(errorMessage)
-      //  }
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCCXzhbX-HRm-ujGbrRU7-ynAlPT4t8HTY";
     }
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          email: enteredEmail,
+          password: enteredPassword,
+          returnSecureToken: true,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setIsLoading(false);
+      const data = await response.json();
+      {
+        let errorMessage = "Authentication Failed....";
+        if (data && data.error && data.error.message) {
+          errorMessage = data.error.message;
+        }
+        alert(errorMessage);
+        console.log(data);
+        console.log(data.idToken)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    
   };
-
   return (
     <section className={classes.auth}>
       <h1>{isLogin ? "Login" : "Sign Up"}</h1>
@@ -80,8 +73,8 @@ const AuthForm = () => {
           />
         </div>
         <div className={classes.actions}>
-         {!isLoding && <button>{isLogin ? "Login" : "Create Account"}</button>} 
-         {isLoding && <p>Sending request....</p>}
+          {!isLoding && <button>{isLogin ? "Login" : "Create Account"}</button>}
+          {isLoding && <p>Sending request....</p>}
           <button
             type="button"
             className={classes.toggle}
