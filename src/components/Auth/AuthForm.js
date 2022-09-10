@@ -1,22 +1,25 @@
 import { useContext, useRef, useState } from "react";
 import AuthContext from "../../Store/auth-context";
 
+import { useHistory } from "react-router-dom";
+
 import classes from "./AuthForm.module.css";
 
 const AuthForm = () => {
+  const history=useHistory();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoding, setIsLoading] = useState(false);
 
   let emailInputRef = useRef();
   let passwordInputRef = useRef();
 
-  const authCtx=useContext(AuthContext)
+  const authCtx = useContext(AuthContext);
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
   };
 
-  const submitHandler = async (event) => {
+  const submitHandler = (event) => {
     event.preventDefault();
 
     const enteredEmail = emailInputRef.current.value;
@@ -30,36 +33,37 @@ const AuthForm = () => {
       url =
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCCXzhbX-HRm-ujGbrRU7-ynAlPT4t8HTY";
     }
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify({
-          email: enteredEmail,
-          password: enteredPassword,
-          returnSecureToken: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then((res)=>{
       setIsLoading(false);
-      const data = await response.json();
-      
-        let errorMessage = "Authentication Failed....";
-        if (data && data.error && data.error.message) {
-          errorMessage = data.error.message;
-        }
-        // throw new Error(error.message)
-        alert(errorMessage);
-        // console.log(data);
-        authCtx.login(data.idToken)
-        // console.log(data.idToken)
-      
-    } catch (error) {
-      console.log(error.message);
-    }
-    
-  };
+      if(res.ok){
+        return res.json();
+      } else {
+        return res.json().then((data)=>{
+          let errorMessage = "Authentication Failed....";
+          throw new Error(errorMessage);
+        });
+      }
+    })
+    .then((data)=>{
+      authCtx.login(data.idToken);
+      history.replace('/profile')
+    })
+    .catch((err)=>{
+      alert(err.message)
+    })
+  }
+
   return (
     <section className={classes.auth}>
       <h1>{isLogin ? "Login" : "Sign Up"}</h1>

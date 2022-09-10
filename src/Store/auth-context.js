@@ -15,7 +15,7 @@ export const AuthContextProvider=(props)=>{
     const loginHandler=(token)=>{
         setToken(token)
     }
-    const logutHandler=()=>{
+    const logoutHandler=()=>{
         setToken(null)
     }
     
@@ -23,7 +23,7 @@ export const AuthContextProvider=(props)=>{
         token:token,
         isLoggedin: userIsLoggedIn,
         login:loginHandler,
-        logout:logutHandler 
+        logout:logoutHandler 
     }
     
     return <AuthContext.Provider value={contextValue}>
